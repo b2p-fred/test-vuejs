@@ -1,0 +1,23 @@
+version: "3.8"
+
+services:
+  # Front UI build tools and development server
+  # VueJS application
+  node-vuejs:
+    ports:
+      - "8080:8080"
+      - "9080:${VUE_UI_PORT}"
+    volumes:
+      # Vue ongoing dev application
+      - .:/app/
+      # Vue UI live configuration
+      - .docker-home-vue/.vuerc:/home/node/.vuerc
+      - .docker-home-vue/.vue-cli-ui:/home/node/.vue-cli-ui
+
+  # Front UI production web server
+  nginx-ui:
+    ports:
+      - "3001:80"
+    volumes:
+      # Vue built application for production
+      - ./dist/:/usr/share/nginx/html/:ro
