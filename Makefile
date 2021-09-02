@@ -93,8 +93,8 @@ serve: ## Start serving the application (default Docker command)
 lint: ## Lint the source code
 	docker exec ${CONTAINER_NAME} yarn lint
 
-test: ## Run the unit tests
-	docker exec ${CONTAINER_NAME} yarn test
+unit-tests: ## Run the unit tests
+	docker exec ${CONTAINER_NAME} yarn test:unit
 
 
 prod: ## Build the production app

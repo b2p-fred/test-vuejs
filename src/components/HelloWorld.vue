@@ -1,5 +1,55 @@
 <template>
   <v-container>
+    <v-form
+      v-show="visible"
+      v-model="valid"
+      action="/home"
+      @submit.prevent="login"
+    >
+      <v-card>
+        <v-card-title>
+          <span class="text-h5">{{ msg }}</span>
+        </v-card-title>
+        <v-card-text>
+          <v-container>
+            <v-row>
+              <v-col cols="12">
+                <v-text-field
+                  v-model="loginData.email"
+                  label="Email"
+                  required
+                />
+              </v-col>
+              <v-col cols="12">
+                <v-text-field
+                  v-model="loginData.password"
+                  label="Password"
+                  required
+                />
+              </v-col>
+            </v-row>
+          </v-container>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn
+            color="red darken-1"
+            text
+            @click="visible = false"
+          >
+            Close
+          </v-btn>
+          <v-btn
+            type="submit"
+            color="green darken-1"
+            text
+          >
+            Sign in
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-form>
+
     <v-row class="text-center">
       <v-col cols="12">
         <v-img
@@ -95,7 +145,23 @@
   export default {
     name: 'HelloWorld',
 
+    props: {
+      msg: {
+        type: String,
+        required: true,
+      }
+    },
     data: () => ({
+      visible: true,
+      valid: false,
+      showPassword1: false,
+
+      // Form fields
+      loginData: {
+        email: "",
+        password: "",
+      },
+
       ecosystem: [
         {
           text: 'vuetify-loader',
@@ -147,5 +213,11 @@
         },
       ],
     }),
+    methods: {
+      async login() {
+        this.visible = false;
+        console.log(`Authenticating with '${this.loginData}'...`)
+      }
+    },
   }
 </script>

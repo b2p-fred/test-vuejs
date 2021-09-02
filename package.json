@@ -5,6 +5,7 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
+    "test:unit": "vue-cli-service test:unit",
     "lint": "vue-cli-service lint",
     "make:component": "vue-cli-service make:component",
     "make:directive": "vue-cli-service make:directive",
@@ -24,18 +25,22 @@
   },
   "devDependencies": {
     "@babel/preset-env": "^7.15.0",
+    "@types/jest": "^27.0.1",
     "@vue/cli-plugin-babel": "~4.5.0",
     "@vue/cli-plugin-eslint": "~4.5.0",
     "@vue/cli-plugin-pwa": "^4.5.13",
     "@vue/cli-plugin-router": "~4.5.0",
+    "@vue/cli-plugin-unit-jest": "~4.5.0",
     "@vue/cli-plugin-vuex": "~4.5.0",
     "@vue/cli-service": "~4.5.0",
+    "@vue/test-utils": "^1.2.2",
     "babel-eslint": "^10.1.0",
     "eslint": "^6.7.2",
     "eslint-plugin-vue": "^6.2.2",
     "pluralize": "^8.0.0",
     "sass": "~1.32.0",
     "sass-loader": "^10.0.0",
+    "sinon": "^11.1.2",
     "vue-cli-plugin-vuetify": "~2.4.2",
     "vue-cli-plugin-vuetify-cli": "~0.2.3",
     "vue-template-compiler": "^2.6.11",
@@ -52,7 +57,25 @@
     ],
     "parserOptions": {
       "parser": "babel-eslint"
-    }
+    },
+    "overrides": [
+      {
+        "files": [
+          "**/tests/**/*.spec.{j,t}s?(x)"
+        ],
+        "env": {
+          "jest": true
+        }
+      },
+      {
+        "files": [
+          "**/tests/unit/**/*.test.{j,t}s?(x)"
+        ],
+        "env": {
+          "jest": true
+        }
+      }
+    ]
   },
   "browserslist": [
     "> 1%",
