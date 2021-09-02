@@ -38,7 +38,7 @@
     "eslint": "^6.7.2",
     "eslint-plugin-vue": "^6.2.2",
     "pluralize": "^8.0.0",
-    "sass": "~1.32.0",
+    "sass": "~1.39.0",
     "sass-loader": "^10.0.0",
     "sinon": "^11.1.2",
     "vue-cli-plugin-vuetify": "~2.4.2",
