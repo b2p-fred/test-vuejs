@@ -53,3 +53,22 @@ jobs:
 
       - name: Run tests 🧪
         run: yarn test:unit
+
+      - name: Upload tests results
+        uses: actions/upload-artifact@v2
+        with:
+          name: tests-coverage-reports
+          path: artifacts/clover.xml
+          if-no-files-found: error
+
+      - name: Upload unit tests code coverage to Codecov
+        uses: codecov/codecov-action@v2
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./artifacts/clover.xml
+          flags: frontend-unit-tests
+          env_vars: OS,NODE
+          name: codecov-umbrella # optional
+          fail_ci_if_error: true # optional (default = false)
+          verbose: false
+

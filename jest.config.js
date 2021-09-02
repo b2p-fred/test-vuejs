@@ -52,6 +52,8 @@ module.exports = {
         '<rootDir>/src/**/*.js'
     ],
 
+    coverageDirectory: '<rootDir>/artifacts',
+
     coveragePathIgnorePatterns: [
         "dist",
         "/node_modules/"
@@ -69,10 +71,10 @@ module.exports = {
             "branches": 40,
             "statements": 40
         },
-        "./src/pages/": {
-            "branches": 40,
-            "statements": 40
-        },
+        // "./src/views/": {
+        //     "branches": 40,
+        //     "statements": 40
+        // },
         // "./src/reducers/**/*.js": {
         //   "statements": 90
         // },
