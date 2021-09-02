@@ -1,7 +1,6 @@
 // test/CustomCard.spec.js
 
 // Libraries
-import Vue from 'vue'
 import Vuetify from 'vuetify'
 
 // Utilities

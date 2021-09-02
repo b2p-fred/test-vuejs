@@ -1,7 +1,7 @@
 import Vue from "vue";
 import VueX from 'vuex'
 import Vuetify from "vuetify";
-import { config } from '@vue/test-utils'
+// import { config } from '@vue/test-utils'
 // console.log("Test configuration: ", config);
 
 Vue.config.productionTip = false;
