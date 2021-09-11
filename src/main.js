@@ -1,21 +1,28 @@
-
 // Polyfills
-import 'core-js/stable'
-import 'regenerator-runtime/runtime'
+import "core-js/stable";
+import "regenerator-runtime/runtime";
 
 // Imports
-import Vue from 'vue'
-import App from './App.vue'
-import vuetify from './plugins/vuetify'
-import router from './router'
-import store from './store'
-import './registerServiceWorker'
+import Vue from "vue";
+import App from "./App.vue";
+import vuetify from "./plugins/vuetify";
+import "./registerServiceWorker";
+import i18n from "./i18n";
+import store from "@/store";
+import router from "@/router";
 
-Vue.config.productionTip = false
+Vue.config.productionTip = false;
 
 new Vue({
   vuetify,
   router,
   store,
-  render: h => h(App)
-}).$mount('#app')
+  i18n,
+  watch: {
+    locale(val) {
+      console.warn("Locale changed!");
+      this.$i18n.locale = val;
+    },
+  },
+  render: (h) => h(App),
+}).$mount("#app");

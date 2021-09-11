@@ -103,6 +103,8 @@ prod: ## Build the production app
 
 ssh: ## Access Docker container terminal.
 	docker exec -t -i ${CONTAINER_NAME} bash
+root: ## Access Docker container terminal as root user.
+	docker exec -u root -t -i ${CONTAINER_NAME} bash
 
 
 vue-ui: ## Access Docker container terminal.

@@ -7,9 +7,7 @@
 
       <v-spacer />
 
-      <v-btn @click="$emit('action-btn:clicked')">
-        Action
-      </v-btn>
+      <v-btn @click="$emit('action-btn:clicked')"> Action </v-btn>
     </v-card-title>
 
     <v-card-text>
@@ -20,7 +18,7 @@
 
 <script>
 export default {
-  name: 'CustomCard',
+  name: "CustomCard",
 
   props: {
     title: {
@@ -28,5 +26,5 @@ export default {
       required: true,
     },
   },
-}
+};
 </script>
