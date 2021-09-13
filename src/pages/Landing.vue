@@ -23,7 +23,7 @@
 </template>
 
 <script>
-import SignInDialog from "@/components/SignIn";
+import SignInDialog from "@/components/dialogs/SignIn";
 
 export default {
   name: "Landing",

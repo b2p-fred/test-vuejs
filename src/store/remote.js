@@ -1,5 +1,6 @@
 const state = {
-  apiUrl: process.env.API_URL,
+  apiUrl: process.env.VUE_APP_API_URL || "http://localhost",
+  mimeType: process.env.VUE_APP_ACCEPT_HEADER || "application/ld+json",
 
   // API service
   version: "/version",

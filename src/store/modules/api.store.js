@@ -1,4 +1,4 @@
-import versionService from "@/services/version.service";
+import versionService from "@/services/endpoints/version.service";
 
 const initialState = () => ({
   status: "",

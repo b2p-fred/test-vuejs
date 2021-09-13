@@ -3,23 +3,33 @@ import Vuex from "vuex";
 import createLogger from "vuex/dist/logger";
 import backendConfiguration from "./remote";
 
+import makeCrudModule from "./modules/crud";
+
 import VuexPersistence from "vuex-persist";
-import localForage from "localforage";
 
 const vuexLocal = new VuexPersistence({
   key: process.env.VUE_APP_STORE_KEY || "pwa-store",
-  storage: localForage,
+  storage: localStorage,
 });
 
 // See ./module/index.js for importing all modules at once:
 // fixme: This is a great solution but it breaks the PhpStorm syntactic analysis !
 // import modules from "./modules";
 // A such, we do manually import all the store modules
+import notifications from "./modules/notifications";
+
+import addressService from "@/services/endpoints/address";
+import contactService from "@/services/endpoints/contact";
+import documentService from "@/services/endpoints/document";
+import documentVersionService from "@/services/endpoints/documentversion";
+import relationService from "@/services/endpoints/relation";
+import userService from "@/services/endpoints/user";
+
 import Alert from "./modules/alert.store";
 import Api from "./modules/api.store";
 import OidcConfiguration from "./modules/oidcConfiguration.store";
-import User from "./modules/user.store";
-import Users from "./modules/users.store";
+import Authentication from "./modules/authentication.store";
+// import Users from "./modules/users.store";
 
 Vue.use(Vuex);
 const debug = process.env.NODE_ENV !== "production";
@@ -48,11 +58,19 @@ const initialState = () => ({
 const store = new Vuex.Store({
   // modules,
   modules: {
+    theAddresses: makeCrudModule({ service: addressService }),
+    theContacts: makeCrudModule({ service: contactService }),
+    theDocuments: makeCrudModule({ service: documentService }),
+    theDocumentVersions: makeCrudModule({ service: documentVersionService }),
+    theRelations: makeCrudModule({ service: relationService }),
+    theUsers: makeCrudModule({ service: userService }),
+
+    notifications,
     Alert,
     Api,
-    User,
-    Users,
     OidcConfiguration,
+    Authentication,
+    // Users,
   },
   state: initialState(),
   actions: {

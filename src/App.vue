@@ -1,5 +1,7 @@
 <template>
   <v-app id="my-front">
+    <snackbar></snackbar>
+
     <v-system-bar app>
       <v-spacer></v-spacer>
 
@@ -26,6 +28,35 @@
           <v-list-item-subtitle> pages </v-list-item-subtitle>
         </v-list-item-content>
       </v-list-item>
+
+      <v-divider />
+
+      <v-list dense>
+        <v-list-item>
+          <v-list-item-action>
+            <v-icon>mdi-home</v-icon>
+          </v-list-item-action>
+          <v-list-item-content>
+            <v-list-item-title>Home</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+        <v-list-item :to="{ name: 'AddressList' }">
+          <v-list-item-action>
+            <v-icon>mdi-book</v-icon>
+          </v-list-item-action>
+          <v-list-item-content>
+            <v-list-item-title> Books </v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+        <v-list-item :to="{ name: 'ContactList' }">
+          <v-list-item-action>
+            <v-icon>mdi-comment-quote</v-icon>
+          </v-list-item-action>
+          <v-list-item-content>
+            <v-list-item-title> Reviews </v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+      </v-list>
 
       <v-divider />
 
@@ -73,7 +104,16 @@
     </v-app-bar>
 
     <v-main>
+      <Breadcrumb layout-class="pl-3 py-3" />
+
       <v-container fluid>
+        <LocaleChanger
+          flag
+          label
+          current-language="fr-FR"
+          :flag-height="12"
+        ></LocaleChanger>
+
         <router-view />
       </v-container>
     </v-main>
@@ -128,12 +168,22 @@
 </template>
 
 <script>
-import jwt_decode from "jwt-decode";
-import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
-import { readFromStorage, removeFromStorage } from "@/_helpers";
+import { mapActions, mapGetters, mapState } from "vuex";
+import { readFromStorage } from "@/utils/local-storage";
 import router from "@/router";
 
+import Breadcrumb from "@/components/base/Breadcrumb";
+import Snackbar from "@/components/base/Snackbar";
+
+import LocaleChanger from "@/components/base/LocaleChanger";
+
 export default {
+  components: {
+    Breadcrumb,
+    Snackbar,
+    LocaleChanger,
+  },
+
   data: () => ({
     drawer: null,
     fixed: false,
@@ -146,19 +196,44 @@ export default {
       },
       {
         icon: "mdi-home-city-outline",
-        title: "Sites",
-        to: "/sites",
-      },
-      {
-        icon: "mdi-library-shelves",
-        title: "Libraries",
-        to: "/libraries",
+        title: "Addresses",
+        to: "/addresses",
       },
       {
         icon: "mdi-account-group",
-        title: "Communities",
-        to: "/communities",
+        title: "Contacts",
+        to: "/contacts",
       },
+      {
+        icon: "mdi-book",
+        title: "Documents",
+        to: "/documents",
+      },
+      {
+        icon: "mdi-book-alphabet",
+        title: "Documents versions",
+        to: "/documentversions",
+      },
+      {
+        icon: "mdi-signature-freehand",
+        title: "Relations",
+        to: "/relations",
+      },
+      {
+        icon: "mdi-factory",
+        title: "Sites",
+        to: "/sites",
+      },
+      // {
+      //   icon: "mdi-library-shelves",
+      //   title: "Libraries",
+      //   to: "/libraries",
+      // },
+      // {
+      //   icon: "mdi-account-group",
+      //   title: "Communities",
+      //   to: "/communities",
+      // },
     ],
     miniVariant: true,
     rightDrawer: false,
@@ -166,7 +241,7 @@ export default {
   }),
   computed: {
     ...mapState({
-      currentUser: (state) => state.User,
+      currentUser: (state) => state.Authentication,
       currentLanguage: (state) => state.currentLanguage,
     }),
     userLoggedIn() {
@@ -180,11 +255,8 @@ export default {
     },
   },
   created() {
-    // const defaultLanguage = navigator.language.split("-")[0];
-    // console.log(`Default navigator language: ${defaultLanguage}`, this.currentLanguage);
-
     const userToken = readFromStorage("token") || "";
-    this.$store.commit("User/SET_TOKEN", userToken);
+    this.$store.commit("Authentication/SET_TOKEN", userToken);
     if (userToken) {
       console.log("A user is still signed-in!", this.currentUser);
     }
@@ -201,23 +273,6 @@ export default {
       this.getOidcConfiguration();
     }
 
-    // Event handler for the locale changed with the locale changer component
-    this.$root.$on("language-changed", (code) => {
-      // if (code === "default") {
-      //   code = defaultLanguage;
-      // }
-      // const localeCode = code;
-      // // i18n library locale update
-      // this.$i18n.locale = localeCode;
-      // const localeName = this.$i18n.t("name");
-      //
-      // // Set the current user locale
-      // this.setLocale({ code: localeCode, name: localeName });
-      //
-      // // Force the view update - not necessary, uncomment to reactivate
-      // // this.$forceUpdate();
-    });
-
     // Only if a user signed in
     this.$root.$on("user-signed-in", () => {
       console.log("A user just signed-in!", this.currentUser);
@@ -232,15 +287,15 @@ export default {
     });
   },
   mounted() {
-    console.log("Logged-in", this.userLoggedIn, this.isLoggedIn());
+    console.log("mounted - Logged-in", this.userLoggedIn, this.isLoggedIn());
 
     this.userLoggedIn && this.$root.$emit("user-signed-in");
   },
   methods: {
     ...mapGetters("Alert", ["lastLoginMessage"]),
-    ...mapGetters("User", ["isLoggedIn", "friendlyName", "initials"]),
+    ...mapGetters("Authentication", ["isLoggedIn", "friendlyName", "initials"]),
     ...mapActions({ getApiVersion: "Api/getVersion" }),
-    ...mapActions({ logout: "User/logout" }),
+    ...mapActions({ logout: "Authentication/logout" }),
     ...mapActions({
       getOidcConfiguration: "OidcConfiguration/getOidcConfiguration",
     }),

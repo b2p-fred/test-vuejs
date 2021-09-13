@@ -2,7 +2,6 @@ const webpack = require("webpack");
 
 const fs = require("fs");
 const packageJson = fs.readFileSync("./package.json");
-console.log(packageJson)
 const appName = JSON.parse(packageJson).name || "Unnamed";
 const appVersion = JSON.parse(packageJson).version || 0;
 const appDescription = JSON.parse(packageJson).description || "";

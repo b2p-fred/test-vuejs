@@ -1,4 +1,4 @@
-import usersService from "@/services/users.service";
+import usersService from "@/services/endpoints/users.service";
 
 const initialState = () => ({
   status: "",
