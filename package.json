@@ -38,7 +38,7 @@
   "devDependencies": {
     "@babel/preset-env": "^7.15.6",
     "@intlify/vue-i18n-loader": "^3.2.0",
-    "@types/jest": "^27.0.1",
+    "@types/jest": "^27.0.2",
     "@vue/cli-plugin-babel": "~4.5.0",
     "@vue/cli-plugin-eslint": "~4.5.0",
     "@vue/cli-plugin-pwa": "^4.5.13",
