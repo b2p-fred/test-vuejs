@@ -10707,10 +10707,10 @@ vue-cli-plugin-i18n@~2.3.1:
     vue-i18n "^8.17.0"
     vue-i18n-extract "1.0.2"
 
-vue-cli-plugin-vuetify-cli@~0.2.3:
-  version "0.2.3"
-  resolved "https://registry.nlark.com/vue-cli-plugin-vuetify-cli/download/vue-cli-plugin-vuetify-cli-0.2.3.tgz#578b4af2651b6f7902309880286745ce4549d3d7"
-  integrity sha1-V4tK8mUbb3kCMJiAKGdFzkVJ09c=
+vue-cli-plugin-vuetify-cli@~0.2.4:
+  version "0.2.4"
+  resolved "https://registry.yarnpkg.com/vue-cli-plugin-vuetify-cli/-/vue-cli-plugin-vuetify-cli-0.2.4.tgz#78faf33ea1adafef972e5e8e6407879857758cf8"
+  integrity sha512-96uxnbAS1WcD3+S7jjaWpBbH6MNiwwWVi/j+0pwjXIM/yTJ7X9ZaoST08zhFnCY3rId2DSMa8HY2FiEgr8d9WA==
   dependencies:
     pluralize "^8.0.0"
 
