@@ -64,7 +64,7 @@
     "vue-cli-plugin-vuetify-cli": "~0.2.3",
     "vue-template-compiler": "^2.6.11",
     "vuetify-loader": "^1.7.0",
-    "webpack-bundle-analyzer": "^4.4.2"
+    "webpack-bundle-analyzer": "^4.5.0"
   },
   "eslintConfig": {
     "root": true,
