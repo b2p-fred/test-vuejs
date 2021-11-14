@@ -1,3 +1,5 @@
+import { TOKEN_STORAGE } from "@/config/authentication";
+
 import router from "@/router";
 import jwt_decode from "jwt-decode";
 import authenticationService from "@/services/endpoints/authentication.service";
@@ -13,9 +15,8 @@ import authenticationService from "@/services/endpoints/authentication.service";
 const initialState = () => ({
   status: "",
   error: null,
-  authenticated: !!localStorage.getItem("token"),
-  token: localStorage.getItem("token"),
-  me: {},
+  token: localStorage.getItem(TOKEN_STORAGE),
+  user: {},
 });
 
 const state = initialState();
@@ -105,33 +106,40 @@ const getters = {
   },
   friendlyName: (_state) => {
     // Returns, in order of preference, prénom+nom, prénom, nom, sinon Inconnu
-    return _state.me
-      ? _state.me.firstName && _state.me.lastName
-        ? _state.me.firstName + " " + _state.me.lastName
-        : _state.me.firstName
-        ? _state.me.firstName
-        : _state.me.lastName
-        ? _state.me.lastName
+    return _state.user
+      ? _state.user.name
+        ? _state.user.name
+        : _state.user.firstName && _state.user.lastName
+        ? _state.user.firstName + " " + _state.user.lastName
+        : _state.user.firstName
+        ? _state.user.firstName
+        : _state.user.lastName
+        ? _state.user.lastName
         : "user.not_named"
       : "user.not_connected";
   },
-  initials: (_state) => {
-    // Returns, in order of preference, prénom+nom, prénom, nom, sinon Inconnu
-    return _state.me
-      ? _state.me.firstName && _state.me.lastName
-        ? _state.me.firstName[0] + _state.me.lastName[0]
-        : _state.me.firstName
-        ? _state.me.firstName[0]
-        : _state.me.lastName
-        ? _state.me.lastName[0]
-        : "YyY"
-      : "XxX";
+  /**
+   * Get initials from the user friendly name
+   * Returns only two uppercase characters:
+   * - John Smith => JS
+   * - John Doe Smith => JS
+   */
+  initials: (_state, _getters) => {
+    const friendlyName = _getters.friendlyName;
+    let names = friendlyName.split(" "),
+      initials = names[0].substring(0, 1).toUpperCase();
+
+    if (names.length > 1) {
+      initials += names[names.length - 1].substring(0, 1).toUpperCase();
+    }
+
+    return initials;
   },
   role: (_state) => {
-    return _state.me ? _state.me.role : "";
+    return _state.user ? _state.user.role : "";
   },
   layout: (_state) => {
-    return _state.me ? _state.me.layout : "";
+    return _state.user ? _state.user.layout : "";
   },
 };
 
@@ -146,7 +154,7 @@ const mutations = {
   LOGIN_REQUEST(_state, user) {
     _state.status = "logging";
     _state.error = null;
-    _state.me = user;
+    _state.user = null;
   },
   LOGIN_SUCCESS(_state) {
     _state.status = "success";
@@ -154,24 +162,37 @@ const mutations = {
   LOGIN_FAILURE(_state, error) {
     _state.status = "error";
     _state.error = error;
-    _state.me = null;
   },
   PROFILE_REQUEST(_state) {
     _state.status = "logging";
     _state.error = null;
   },
   PROFILE_SUCCESS(_state, user) {
+    console.log("PROFILE_SUCCESS:", user);
     _state.status = "success";
-    _state.me = user;
+    if (!"company" in user) {
+      user.company = {
+        id: "12019122010131697",
+        name: "B2P",
+        address: "127 avenue Joseph Boitelet",
+        comp_address: "",
+        zip_code: "84300",
+        city_name: "Cavaillon",
+        siret: "87459652100011",
+        code_ape: "AAA",
+        vat_number: "FR06874596521",
+      };
+    }
+    _state.user = user;
   },
   PROFILE_FAILURE(_state, error) {
     _state.status = "error";
     _state.error = error;
-    _state.me = null;
+    _state.user = null;
   },
   LOGOUT(_state, message) {
     _state.status = "";
-    _state.me = null;
+    _state.user = null;
     _state.token = "";
     if (message) {
       console.warn("Logout because: " + message);
@@ -182,15 +203,15 @@ const mutations = {
     try {
       jwt_decode(token);
       _state.token = token;
-      // console.log("SET_TOKEN: ", jwt_decode(token));
+      console.log("SET_TOKEN: ", jwt_decode(token));
     } catch (exc) {
       // Got a malformed token... clean this stuff!
       _state.token = "";
     }
   },
   SET_LOCALE(_state, code) {
-    if (_state.me) {
-      _state.me.languageCode = code;
+    if (_state.user) {
+      _state.user.languageCode = code;
     }
   },
   USER_DENIED(_state, message) {

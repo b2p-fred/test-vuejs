@@ -52,4 +52,5 @@ services:
 networks:
   dev:
     external:
-      name: backend_dev
+#      name: docker_sf5_lan
+      name: epr-backend_lan

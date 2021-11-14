@@ -12,7 +12,7 @@ const actions = {
   reset({ commit }) {
     commit("RESET");
   },
-  async getVersion({ commit, rootState }, parameters) {
+  async get({ commit, rootState }, parameters) {
     commit("GET_REQUEST");
 
     // // Some GET version parameters
@@ -23,7 +23,7 @@ const actions = {
     versionService
       .get(parameters)
       .then((response) => {
-        commit("GET_SUCCESS", response.data);
+        commit("GET_SUCCESS", response);
       })
       .catch((error) => {
         commit("GET_FAILURE", error);

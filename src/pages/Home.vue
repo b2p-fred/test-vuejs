@@ -14,7 +14,7 @@
         <img alt="Vue logo" src="../assets/logo.png" />
         <CustomCard title="Welcome to Your Vue.js App" />
 
-        <HelloWorld msg="Welcome to Your Vue.js App" />
+        <HelloWorld msg="Welcome to Vuetify" />
       </div>
     </v-card>
   </v-sheet>

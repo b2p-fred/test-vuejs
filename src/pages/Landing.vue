@@ -41,5 +41,8 @@ export default {
     ],
     slides: ["First", "Second", "Third", "Fourth", "Fifth"],
   }),
+  mounted() {
+    console.log("Mounted Landing!");
+  },
 };
 </script>

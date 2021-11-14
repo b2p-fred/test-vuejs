@@ -13,7 +13,7 @@
     </v-system-bar>
 
     <v-navigation-drawer
-      v-show="userLoggedIn"
+      v-show="uiLoggedIn"
       v-model="drawer"
       :mini-variant="miniVariant"
       permanent
@@ -32,28 +32,12 @@
       <v-divider />
 
       <v-list dense>
-        <v-list-item>
+        <v-list-item :to="{ name: 'Home' }">
           <v-list-item-action>
             <v-icon>mdi-home</v-icon>
           </v-list-item-action>
           <v-list-item-content>
             <v-list-item-title>Home</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-        <v-list-item :to="{ name: 'AddressList' }">
-          <v-list-item-action>
-            <v-icon>mdi-book</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title> Books </v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-        <v-list-item :to="{ name: 'ContactList' }">
-          <v-list-item-action>
-            <v-icon>mdi-comment-quote</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title> Reviews </v-list-item-title>
           </v-list-item-content>
         </v-list-item>
       </v-list>
@@ -80,7 +64,7 @@
     </v-navigation-drawer>
 
     <v-app-bar
-      v-show="userLoggedIn"
+      v-show="uiLoggedIn"
       clipped-left
       color="deep-purple accent-1"
       fixed
@@ -96,24 +80,12 @@
       <v-toolbar-title v-text="title" />
       <v-spacer />
       <v-btn icon @click.stop="rightDrawer = !rightDrawer">
-        <v-icon>mdi-cog</v-icon>
-      </v-btn>
-      <span v-if="userLoggedIn">
         <v-avatar color="primary" size="32">{{ userInitials }}</v-avatar>
-      </span>
+      </v-btn>
     </v-app-bar>
 
     <v-main>
-      <Breadcrumb layout-class="pl-3 py-3" />
-
       <v-container fluid>
-        <LocaleChanger
-          flag
-          label
-          current-language="fr-FR"
-          :flag-height="12"
-        ></LocaleChanger>
-
         <router-view />
       </v-container>
     </v-main>
@@ -141,6 +113,13 @@
       </template>
 
       <v-divider />
+
+      <LocaleChanger
+        flag
+        label
+        current-language="fr-FR"
+        :flag-height="12"
+      ></LocaleChanger>
 
       <v-list-item>
         <v-list-item-content>
@@ -172,14 +151,14 @@ import { mapActions, mapGetters, mapState } from "vuex";
 import { readFromStorage } from "@/utils/local-storage";
 import router from "@/router";
 
-import Breadcrumb from "@/components/base/Breadcrumb";
+import { TOKEN_STORAGE } from "@/config/authentication";
+
 import Snackbar from "@/components/base/Snackbar";
 
 import LocaleChanger from "@/components/base/LocaleChanger";
 
 export default {
   components: {
-    Breadcrumb,
     Snackbar,
     LocaleChanger,
   },
@@ -190,19 +169,16 @@ export default {
     selectedItem: 1,
     items: [
       {
-        icon: "mdi-apps",
-        title: "Dashboard",
-        to: "/",
-      },
-      {
         icon: "mdi-home-city-outline",
         title: "Addresses",
+        // todo :Direct route
         to: "/addresses",
       },
       {
         icon: "mdi-account-group",
         title: "Contacts",
-        to: "/contacts",
+        // todo :Route name
+        to: { name: "ContactList" },
       },
       {
         icon: "mdi-book",
@@ -212,7 +188,7 @@ export default {
       {
         icon: "mdi-book-alphabet",
         title: "Documents versions",
-        to: "/documentversions",
+        to: "/documentVersions",
       },
       {
         icon: "mdi-signature-freehand",
@@ -241,37 +217,51 @@ export default {
   }),
   computed: {
     ...mapState({
-      currentUser: (state) => state.Authentication,
+      currentUser: (state) => state.Authentication.user,
+      oidcUser: (state) => state.oidcStore.user,
       currentLanguage: (state) => state.currentLanguage,
+      userToken: (state) => state.oidcStore.id_token,
+      accessToken: (state) => state.oidcStore.access_token,
     }),
-    userLoggedIn() {
-      return this.isLoggedIn();
+    ...mapGetters({
+      userLoggedIn: "Authentication/isLoggedIn",
+      userFriendlyName: "Authentication/friendlyName",
+      userInitials: "Authentication/initials",
+    }),
+    uiLoggedIn() {
+      return this.userLoggedIn;
     },
-    userFriendlyName() {
-      return this.friendlyName();
-    },
-    userInitials() {
-      return this.initials();
+  },
+  watch: {
+    userToken(newValue, oldValue) {
+      // Got a token
+      if (newValue) {
+        console.log(`Got a new user token`);
+        this.$store.commit("Authentication/SET_TOKEN", this.accessToken);
+        this.$store.commit("Authentication/PROFILE_SUCCESS", this.oidcUser);
+      } else {
+        console.log(`User token removed`);
+        this.$store.commit("Authentication/RESET");
+      }
     },
   },
   created() {
-    const userToken = readFromStorage("token") || "";
-    this.$store.commit("Authentication/SET_TOKEN", userToken);
-    if (userToken) {
-      console.log("A user is still signed-in!", this.currentUser);
+    // B2P SSO, get the OIDC configuration
+    if (process.env.VUE_APP_AUTH_URL) {
+      console.warn(
+        `An external authorization URL (${process.env.VUE_APP_AUTH_URL}) is defined, enabling oAuth...`
+      );
+      this.$store.commit("ENABLE_OAUTH");
+    } else {
+      const userToken = readFromStorage(TOKEN_STORAGE) || "";
+      this.$store.commit("Authentication/SET_TOKEN", userToken);
+      if (userToken) {
+        console.log("A user is still signed-in!", this.currentUser);
+      }
     }
 
     // Get the main API configuration
     this.getApiVersion({ language: this.currentLanguage });
-
-    // Test V4V, get the OIDC configuration
-    if (process.env.AUTH_URL) {
-      console.warn(
-        `An external authorization URL (${process.env.AUTH_URL}) is defined, enabling oAuth...`
-      );
-      this.$store.commit("ENABLE_OAUTH");
-      this.getOidcConfiguration();
-    }
 
     // Only if a user signed in
     this.$root.$on("user-signed-in", () => {
@@ -282,26 +272,37 @@ export default {
           console.error("Home page is not available!", err);
         });
       }
-
-      // this.userLoggedIn = true;
     });
   },
   mounted() {
-    console.log("mounted - Logged-in", this.userLoggedIn, this.isLoggedIn());
-
-    this.userLoggedIn && this.$root.$emit("user-signed-in");
+    console.log("mounted - Logged-in", this.userLoggedIn);
+    console.log(
+      "mounted - currentUser",
+      this.userLoggedIn,
+      this.currentUser && this.currentUser.firstName
+    );
+    console.log(
+      "mounted - oidcUser",
+      this.oidcIsAuthenticated(),
+      this.oidcUser && this.oidcUser.name
+    );
+    // this.userLoggedIn && this.$root.$emit("user-signed-in");
   },
   methods: {
     ...mapGetters("Alert", ["lastLoginMessage"]),
-    ...mapGetters("Authentication", ["isLoggedIn", "friendlyName", "initials"]),
-    ...mapActions({ getApiVersion: "Api/getVersion" }),
+    // ...mapGetters("Authentication", ["isLoggedIn", "friendlyName", "initials"]),
+    // OIDC
+    ...mapGetters("oidcStore", ["oidcIsAuthenticated"]),
+
+    ...mapActions({ signOutOidc: "oidcStore/signOutOidc" }),
+    ...mapActions({ getApiVersion: "Api/get" }),
     ...mapActions({ logout: "Authentication/logout" }),
-    ...mapActions({
-      getOidcConfiguration: "OidcConfiguration/getOidcConfiguration",
-    }),
     goLogout() {
-      this.logout();
-      this.$router.push("/login");
+      if (process.env.VUE_APP_AUTH_URL) {
+        this.signOutOidc();
+      }
+      this.$store.commit("Authentication/LOGOUT");
+      this.$router.push("/");
     },
   },
 };

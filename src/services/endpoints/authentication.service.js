@@ -1,6 +1,8 @@
 /*
- * Users login, logout and other services
+ * Users login, logout and related services
  */
+import { TOKEN_STORAGE } from "@/config/authentication";
+
 import store from "@/store";
 import httpClient from "../httpClient";
 
@@ -17,13 +19,13 @@ function login(email, password) {
     .post(store.state.remote.login, { email, password })
     .then((response) => {
       // store the jwt token in the local storage to keep user logged in between page refreshes
-      writeToStorage("token", response.token);
+      writeToStorage(TOKEN_STORAGE, response.token);
       return response.token;
     });
 }
 
 function logout() {
-  removeFromStorage("token");
+  removeFromStorage(TOKEN_STORAGE);
 }
 
 function getUserProfile() {

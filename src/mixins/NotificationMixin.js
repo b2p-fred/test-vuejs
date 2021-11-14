@@ -2,7 +2,7 @@ import { mapFields } from "vuex-map-fields";
 
 export default {
   computed: {
-    ...mapFields("notifications", [
+    ...mapFields("Notifications", [
       "color",
       "show",
       "subText",

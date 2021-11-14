@@ -7,7 +7,7 @@
 
       <v-spacer />
 
-      <v-btn @click="$emit('action-btn:clicked')"> Action </v-btn>
+      <v-btn @click="requestLogin"> Login </v-btn>
     </v-card-title>
 
     <v-card-text>
@@ -24,6 +24,11 @@ export default {
     title: {
       type: String,
       required: true,
+    },
+  },
+  methods: {
+    requestLogin() {
+      this.$router.push("/login");
     },
   },
 };

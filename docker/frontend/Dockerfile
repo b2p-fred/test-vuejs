@@ -31,8 +31,8 @@ RUN usermod -u 1000 $NODE_USER &&\
     mkdir -p /app &&\
     chown -R "$NODE_USER:$NODE_USER" /app
 
-COPY ./package.json /app/package.json
-COPY ./yarn.lock /app/yarn.lock
+# Hint: Copy package.json, and yarn.lock only if it exists ;)
+COPY package.json yarn.loc[k] /app
 
 WORKDIR /app
 
@@ -46,7 +46,9 @@ COPY --chown="$NODE_USER:$NODE_USER" . .
 # Build for production
 RUN set -eux &&\
     # Install application dependencies
-    yarn install --non-interactive &&\
+    yarn install --non-interactive
+
+RUN set -eux &&\
     # Build application for production
     yarn build
 

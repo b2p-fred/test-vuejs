@@ -1,6 +1,6 @@
 import axios from "axios";
-import { readFromStorage } from "@/utils/local-storage";
 import SubmissionError from "@/errors/SubmissionError";
+import { ENTRYPOINT } from "@/config/api";
 import store from "@/store";
 import router from "@/router";
 
@@ -37,8 +37,8 @@ if (process.env.APP_COMMENTS && process.env.APP_COMMENTS !== "") {
 }
 
 const httpClient = axios.create({
-  baseURL: process.env.VUE_APP_API_URL,
-  timeout: 1000,
+  baseURL: ENTRYPOINT,
+  timeout: 10000,
   // withCredentials: false,
   headers: defaultHeaders,
   adapter: throttleAdapterEnhancer(
@@ -52,9 +52,19 @@ httpClient.interceptors.request.use(
   (request) => {
     // Set authorization header with jwt access token
     if (!("Authorization" in request.headers)) {
-      let token = readFromStorage("token") || null;
+      /**
+       * Token from the local storage
+       */
+      // const token = readFromStorage(TOKEN_STORAGE) || null;
+      /**
+       * Token from the VueX store
+       */
+      const token = store.getters["Authentication/getToken"];
+      console.log("Token:", token);
       if (token) {
-        request.headers["Authorization"] = `Bearer ${token}`;
+        request.headers["Authorization"] = process.env.VUE_APP_AUTH_URL
+          ? `S2pToken ${token}`
+          : `Bearer ${token}`;
       }
       return request;
     }
@@ -69,7 +79,7 @@ httpClient.interceptors.response.use(
   (response) => {
     if (response.status === 200) return response.data;
 
-    console.log("Response json:", response);
+    console.log("No exception error response:", response);
     const error =
       json["hydra:description"] || json["hydra:title"] || "An error occurred.";
 
@@ -86,26 +96,41 @@ httpClient.interceptors.response.use(
     throw new SubmissionError(errors);
   },
   (error) => {
-    // all the error responses
-    switch (error.response.status) {
-      case 400:
-        console.error(error.response);
-        store.commit("ERROR", "No data found!");
-        break;
+    console.error("error -> ", error);
+    console.error("error json -> ", error.toJSON());
+    // console.error("error respongse -> ", error.response);
+    // // all the error responses
+    // switch (error.response.status) {
+    //   case 400:
+    //     console.error(error.response);
+    //     store.commit("ERROR", "No data found!");
+    //     break;
+    //
+    //   case 401: // authentication error, logout the user
+    //     console.warn("Please login again", "Session Expired");
+    //     store.commit("WARNING", "Session expired. Please login again!");
+    //     localStorage.removeItem("token");
+    //     router.push("/login");
+    //     break;
+    //
+    //   default:
+    //     console.error(error.response.status, error.message);
+    //     store.commit("ERROR", "Server error!");
+    // }
 
-      case 401: // authentication error, logout the user
-        console.warn("Please login again", "Session Expired");
-        store.commit("WARNING", "Session expired. Please login again!");
-        localStorage.removeItem("token");
-        router.push("/login");
-        break;
-
-      default:
-        console.error(error.response.status, error.message);
-        store.commit("ERROR", "Server error!");
+    if (
+      error.response &&
+      error.response.status &&
+      error.response.status === 401
+    ) {
+      console.warn("Please login again", "Session Expired");
+      store.commit("WARNING", "Session expired. Please login again!");
+      localStorage.removeItem("token");
+      router.push("/login");
+    } else {
+      throw new Error(response.statusText || "An error occurred.");
+      return Promise.reject(error);
     }
-    throw new Error(response.statusText || "An error occurred.");
-    // return Promise.reject(error);
   }
 );
 
