@@ -55,7 +55,7 @@ jobs:
         run: yarn test:unit
 
       - name: Upload tests results
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: tests-coverage-reports
           path: artifacts/clover.xml
